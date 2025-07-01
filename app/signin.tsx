@@ -5,6 +5,8 @@ import { Link, router } from 'expo-router'
 type Props = {}
 
 const SignInScreen = (props: Props) => {
+  console.log('SignInScreen');
+  
   return (
     <View style={styles.container}>
       <Text>SignIn Screen</Text>

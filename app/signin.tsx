@@ -12,6 +12,7 @@ import SignUpModal from "./Components/Authentication/signUpModal";
 type Props = {};
 
 const SignInScreen = (props: Props) => {
+<<<<<<< HEAD
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [showModal, setShowModal] = useState({
@@ -19,6 +20,24 @@ const SignInScreen = (props: Props) => {
         message: "",
         onclose: () => {},
     });
+=======
+  console.log('SignInScreen');
+  
+  return (
+    <View style={styles.container}>
+      <Text>SignIn Screen</Text>
+      {/* <Link href={"/(tabs)"} asChild> */}
+        <TouchableOpacity onPress={() => {
+          router.dismissAll();
+          router.push('/(tabs)');
+        }}>
+          <Text>Go to App Home Screen</Text>
+        </TouchableOpacity>
+      {/* </Link> */}
+    </View>
+  )
+}
+>>>>>>> feat/WelcomeScreen
 
     const handleLogin = () => {
         setShowModal({

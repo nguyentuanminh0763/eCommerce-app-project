@@ -10,6 +10,7 @@ import { router, Stack } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "@/constants/Colors";
 import SignUpModal from "./Components/Authentication/signUpModal";
+import SocialButton from "./Components/partial/SocialButton";
 
 type Props = {};
 
@@ -136,6 +137,7 @@ const SignUpScreen = (props: Props) => {
                         </Text>
                     </Text>
                 </View>
+                <SocialButton />
             </View>
         </>
     );

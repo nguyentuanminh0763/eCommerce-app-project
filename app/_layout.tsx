@@ -3,6 +3,7 @@ import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 import 'react-native-reanimated';
+import { CartProvider } from './Components/CartContext';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -23,12 +24,13 @@ export default function RootLayout() {
   }
 
   return (
-    <Stack initialRouteName="index">
-      <Stack.Screen name="index" options={{ headerShown: false }} />
-      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-      <Stack.Screen name="signin" options={{ presentation: 'modal' }} />
-      <Stack.Screen name="signup" options={{ presentation: 'modal' }} />
-    </Stack>
-
+    <CartProvider>
+      <Stack initialRouteName="index">
+        <Stack.Screen name="index" options={{ headerShown: false }} />
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen name="signin" options={{ presentation: 'modal' }} />
+        <Stack.Screen name="signup" options={{ presentation: 'modal' }} />
+      </Stack>
+    </CartProvider>
   );
 }

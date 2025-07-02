@@ -5,46 +5,10 @@ import { Colors } from '@/constants/Colors';
 import { Ionicons } from '@expo/vector-icons';
 import Header from '@/app/Components/Header';
 import { Stack } from 'expo-router';
-
-// Dữ liệu mẫu cho cart (có thể lấy từ staticProducts của HomeScreen)
-const cartItems: (ProductType & { quantity: number })[] = [
-  {
-    id: 8,
-    title: 'Classic Red Jogger Sweatpants',
-    price: 98,
-    description: '',
-    images: [
-      'https://i.imgur.com/9LFjwpI.jpeg',
-      'https://i.imgur.com/vzrTgUR.jpeg',
-      'https://i.imgur.com/p5NdI6n.jpeg',
-    ],
-    category: {
-      id: 1,
-      name: 'nuevo',
-      image: 'https://i.imgur.com/QkIa5tT.jpeg',
-    },
-    quantity: 2,
-  },
-  {
-    id: 17,
-    title: 'Classic Black T-Shirt',
-    price: 35,
-    description: '',
-    images: [
-      'https://i.imgur.com/9DqEOV5.jpeg',
-      'https://i.imgur.com/ae0AEYn.jpeg',
-      'https://i.imgur.com/mZ4rUjj.jpeg',
-    ],
-    category: {
-      id: 1,
-      name: 'nuevo',
-      image: 'https://i.imgur.com/QkIa5tT.jpeg',
-    },
-    quantity: 1,
-  },
-];
+import { useCart } from '../Components/CartContext';
 
 const CartScreen = () => {
+  const { cartItems } = useCart();
   const total = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
   return (

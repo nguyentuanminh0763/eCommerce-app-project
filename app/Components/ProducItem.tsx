@@ -26,7 +26,7 @@ const width = Dimensions.get("window").width - 40;
 
 const ProductItem = ({ item, index }: Props) => {
     const insets = useSafeAreaInsets();
-    const { addToCart } = useCart();
+    const { addToCart, addWishListItem } = useCart();
     const [showModal, setShowModal] = React.useState(false);
     const [showCartBtn, setShowCartBtn] = React.useState(Platform.OS !== "web");
 
@@ -71,7 +71,12 @@ const ProductItem = ({ item, index }: Props) => {
                             </TouchableOpacity>
                         )}
                     </View>
-                    <TouchableOpacity style={styles.bookmarkButton}>
+                    <TouchableOpacity
+                        style={styles.bookmarkButton}
+                        onPress={() => {
+                            addWishListItem(item);
+                        }}
+                    >
                         <Ionicons
                             name="heart-outline"
                             size={22}

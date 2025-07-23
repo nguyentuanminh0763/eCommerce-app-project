@@ -15,8 +15,10 @@ import {
     FontAwesome5,
     Feather,
 } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 
 const ProfileScreen = () => {
+    const router = useRouter();
     const [user, setUser] = useState<any>(null);
     const [editMode, setEditMode] = useState(false);
     const [form, setForm] = useState({
@@ -116,7 +118,12 @@ const ProfileScreen = () => {
                 )}
             </View>
             <View style={styles.menu}>
-                <TouchableOpacity style={styles.menuItem} onPress={() => {}}>
+                <TouchableOpacity
+                    style={styles.menuItem}
+                    onPress={() => {
+                        router.push("/YourOrder");
+                    }}
+                >
                     <Ionicons
                         name="cart-outline"
                         size={20}
@@ -125,7 +132,10 @@ const ProfileScreen = () => {
                     />
                     <Text style={styles.menuLabel}>Your Orders</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.menuItem} onPress={() => {}}>
+                <TouchableOpacity
+                    style={styles.menuItem}
+                    onPress={() => router.push("/WishList")}
+                >
                     <Ionicons
                         name="heart-outline"
                         size={20}

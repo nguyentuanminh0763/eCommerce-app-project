@@ -15,7 +15,7 @@ const HomeScreen = (props: Props) => {
   const [loading, setLoading] = useState<boolean>(true);
 
    useEffect(() => {
-        fetch("http://192.168.100.78:8000/products")
+        fetch("http://localhost:8000/products")
             .then((res) => res.json())
             .then((data) => {
                 setProducts(data);

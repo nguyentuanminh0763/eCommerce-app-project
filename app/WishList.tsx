@@ -10,22 +10,33 @@ import React from "react";
 import { useCart } from "./Components/CartContext";
 import { ProductType } from "@/types/type";
 import { Colors } from "@/constants/Colors";
+import { router } from "expo-router";
 
 const WishList = () => {
     const { wishListItems, removeItemFromWishList } = useCart();
 
     const renderItem = ({ item }: { item: ProductType }) => (
-        <View style={styles.itemContainer}>
-            <Image source={{ uri: item.images[0] }} style={styles.itemImage} />
-            <View style={styles.itemDetails}>
-                <Text style={styles.itemTitle}>{item.title}</Text>
-                <Text style={styles.itemPrice}>${item.price.toFixed(2)}</Text>
-            </View>
+        <View style={styles.container}>
             <TouchableOpacity
-                onPress={() => removeItemFromWishList(item.id)}
-                style={styles.removeButton}
+                style={{ flex: 1, flexDirection: "row", height: "auto" }}
+                onPress={() => router.push(`/product/${item.id}`)}
             >
-                <Text style={styles.removeButtonText}>Remove</Text>
+                <Image
+                    source={{ uri: item.images[0] }}
+                    style={styles.itemImage}
+                />
+                <View style={styles.itemDetails}>
+                    <Text style={styles.itemTitle}>{item.title}</Text>
+                    <Text style={styles.itemPrice}>
+                        ${item.price.toFixed(2)}
+                    </Text>
+                </View>
+                <TouchableOpacity
+                    onPress={() => removeItemFromWishList(item.id)}
+                    style={styles.removeButton}
+                >
+                    <Text style={styles.removeButtonText}>Remove</Text>
+                </TouchableOpacity>
             </TouchableOpacity>
         </View>
     );
@@ -93,10 +104,13 @@ const styles = StyleSheet.create({
         marginTop: 6,
     },
     removeButton: {
+        height: "50%",
         paddingVertical: 6,
         paddingHorizontal: 12,
         backgroundColor: Colors.primary,
         borderRadius: 6,
+        justifyContent: "center",
+        alignItems: "center",
     },
     removeButtonText: {
         color: Colors.white,

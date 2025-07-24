@@ -16,6 +16,8 @@ import {
     Feather,
 } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useCart } from "../Components/CartContext";
 
 const ProfileScreen = () => {
     const router = useRouter();
@@ -27,24 +29,37 @@ const ProfileScreen = () => {
         address: "",
         phone: "",
     });
+    const { logout } = useCart();
 
     useEffect(() => {
-        fetch("http://localhost:8000/users/1")
+        fetch("http://localhost:8000/users")
+
             .then((res) => res.json())
-            .then((data) => {
-                setUser(data);
-                setForm({
-                    name: data.name,
-                    email: data.email,
-                    address: data.address,
-                    phone: data.phone,
-                });
+            .then(async (data) => {
+                const userString = await AsyncStorage.getItem("currentUser");
+                const currentUser = userString ? JSON.parse(userString) : null;
+                if (currentUser && Array.isArray(data)) {
+                    const foundUser = data.find((u) => u.id === currentUser.id);
+                    setUser(foundUser);
+                    setForm({
+                        name: foundUser.name,
+                        email: foundUser.email,
+                        address: foundUser.address,
+                        phone: foundUser.phone,
+                    });
+                }
             });
     }, []);
 
     if (!user) {
         return (
-            <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+            <View
+                style={{
+                    flex: 1,
+                    justifyContent: "center",
+                    alignItems: "center",
+                }}
+            >
                 <ActivityIndicator size="large" color="#888" />
             </View>
         );
@@ -96,7 +111,9 @@ const ProfileScreen = () => {
                         <TextInput
                             style={styles.infoInput}
                             value={form.address}
-                            onChangeText={(text) => handleChange("address", text)}
+                            onChangeText={(text) =>
+                                handleChange("address", text)
+                            }
                             placeholder="Address"
                         />
                     </>
@@ -110,46 +127,101 @@ const ProfileScreen = () => {
                 )}
             </View>
             <View style={styles.menu}>
-                <TouchableOpacity style={styles.menuItem} onPress={() => router.push("/YourOrder")}>
-                    <Ionicons name="cart-outline" size={20} color="#555" style={styles.menuIcon} />
+                <TouchableOpacity
+                    style={styles.menuItem}
+                    onPress={() => router.push("/YourOrder")}
+                >
+                    <Ionicons
+                        name="cart-outline"
+                        size={20}
+                        color="#555"
+                        style={styles.menuIcon}
+                    />
                     <Text style={styles.menuLabel}>Your Orders</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity style={styles.menuItem} onPress={() => router.push("/WishList")}>
-                    <Ionicons name="heart-outline" size={20} color="#555" style={styles.menuIcon} />
+                <TouchableOpacity
+                    style={styles.menuItem}
+                    onPress={() => router.push("/WishList")}
+                >
+                    <Ionicons
+                        name="heart-outline"
+                        size={20}
+                        color="#555"
+                        style={styles.menuIcon}
+                    />
                     <Text style={styles.menuLabel}>Your Wishlist</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity style={styles.menuItem} onPress={() => {}}>
-                    <MaterialIcons name="payment" size={20} color="#555" style={styles.menuIcon} />
+                    <MaterialIcons
+                        name="payment"
+                        size={20}
+                        color="#555"
+                        style={styles.menuIcon}
+                    />
                     <Text style={styles.menuLabel}>Payment History</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity style={styles.menuItem} onPress={() => {}}>
-                    <FontAwesome5 name="gift" size={18} color="#555" style={styles.menuIcon} />
+                    <FontAwesome5
+                        name="gift"
+                        size={18}
+                        color="#555"
+                        style={styles.menuIcon}
+                    />
                     <Text style={styles.menuLabel}>Reward Points</Text>
                 </TouchableOpacity>
 
                 {/* ✅ Sửa phần này để mở CustomerSupport */}
-                <TouchableOpacity style={styles.menuItem} onPress={() => router.push("/CustomerSupport")}>
-                    <Feather name="headphones" size={20} color="#555" style={styles.menuIcon} />
+                <TouchableOpacity
+                    style={styles.menuItem}
+                    onPress={() => router.push("/CustomerSupport")}
+                >
+                    <Feather
+                        name="headphones"
+                        size={20}
+                        color="#555"
+                        style={styles.menuIcon}
+                    />
                     <Text style={styles.menuLabel}>Customer Support</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity style={styles.menuItem} onPress={handleEditToggle}>
-                    <Feather name="edit-2" size={20} color="#555" style={styles.menuIcon} />
+                <TouchableOpacity
+                    style={styles.menuItem}
+                    onPress={handleEditToggle}
+                >
+                    <Feather
+                        name="edit-2"
+                        size={20}
+                        color="#555"
+                        style={styles.menuIcon}
+                    />
                     <Text style={styles.menuLabel}>
                         {editMode ? "Save Profile" : "Edit Profile"}
                     </Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity style={styles.menuItem} onPress={() => {}}>
-                    <Feather name="settings" size={20} color="#555" style={styles.menuIcon} />
+                    <Feather
+                        name="settings"
+                        size={20}
+                        color="#555"
+                        style={styles.menuIcon}
+                    />
                     <Text style={styles.menuLabel}>Settings</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity style={styles.menuItem} onPress={() => {}}>
-                    <MaterialIcons name="logout" size={20} color="#555" style={styles.menuIcon} />
+                <TouchableOpacity
+                    style={styles.menuItem}
+                    onPress={() => logout()}
+                >
+                    <MaterialIcons
+                        name="logout"
+                        size={20}
+                        color="#555"
+                        style={styles.menuIcon}
+                    />
                     <Text style={styles.menuLabel}>Logout</Text>
                 </TouchableOpacity>
             </View>

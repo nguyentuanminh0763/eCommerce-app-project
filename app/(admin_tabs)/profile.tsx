@@ -19,7 +19,8 @@ import {
   Feather,
 } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useCart } from "../Components/CartContext";
 // Cho emulator Android
 import { Platform } from 'react-native';
 const HOST = Platform.OS === 'android' ? '10.0.2.2' : 'localhost';

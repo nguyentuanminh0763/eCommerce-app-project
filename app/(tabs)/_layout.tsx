@@ -3,6 +3,7 @@ import { Tabs } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useCart } from "../Components/CartContext";
 import { get } from "react-native/Libraries/TurboModule/TurboModuleRegistry";
+import CustomerSupportScreen from "../CustomerSupport";
 
 export default function TabLayout() {
     const { getItemCount } = useCart();

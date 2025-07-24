@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, ReactNode } from "react";
 import { ProductType } from "@/types/type";
 
 export type CartItem = ProductType & { quantity: number };
+
 export type HistoryEntry = {
     items: CartItem[];
     total: number;
@@ -14,11 +15,13 @@ interface CartContextType {
     cartItems: CartItem[];
     addToCart: (product: ProductType) => void;
     removeFromCart: (productId: number) => void;
+    decreaseQuantity: (productId: number) => void;
+    clearCart: () => void;
     getItemCount: () => number;
     addWishListItem: (product: ProductType) => void;
     wishListItems: ProductType[];
     removeItemFromWishList: (productId: number) => void;
-    handleCheckout: (locaiton: string, phoneNumber: string) => void;
+    handleCheckout: (location: string, phoneNumber: string) => void;
     checkoutHistory: HistoryEntry[];
 }
 
@@ -35,6 +38,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     const [wishListItems, setWishListItems] = useState<ProductType[]>([]);
     const [checkoutHistory, setCheckoutHistory] = useState<HistoryEntry[]>([]);
 
+    // Thêm sản phẩm vào giỏ hàng
     const addToCart = (product: ProductType) => {
         setCartItems((prev) => {
             const found = prev.find((item) => item.id === product.id);
@@ -49,31 +53,55 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         });
     };
 
+    // Giảm số lượng sản phẩm (nếu số lượng > 1)
+    const decreaseQuantity = (productId: number) => {
+        setCartItems((prev) =>
+            prev.map((item) =>
+                item.id === productId && item.quantity > 1
+                    ? { ...item, quantity: item.quantity - 1 }
+                    : item
+            )
+        );
+    };
+
+    // Xóa sản phẩm khỏi giỏ
     const removeFromCart = (productId: number) => {
         setCartItems((prev) => prev.filter((item) => item.id !== productId));
     };
 
+    // Xóa toàn bộ giỏ
+    const clearCart = () => {
+        setCartItems([]);
+    };
+
+    // Đếm số lượng sản phẩm
     const getItemCount = () => {
         return cartItems.reduce((total, item) => total + item.quantity, 0);
     };
 
+    // Thêm sản phẩm vào wishlist
     const addWishListItem = (product: ProductType) => {
-        setWishListItems([...wishListItems, product]);
+        setWishListItems((prev) => {
+            if (prev.some((item) => item.id === product.id)) return prev;
+            return [...prev, product];
+        });
     };
 
+    // Xóa sản phẩm khỏi wishlist
     const removeItemFromWishList = (productId: number) => {
-        setWishListItems((prev) => prev.filter((item) => item.id != productId));
+        setWishListItems((prev) => prev.filter((item) => item.id !== productId));
     };
 
+    // Thanh toán
     const handleCheckout = (location: string, phoneNumber: string) => {
-        if (cartItems.length === 0) {
-            return;
-        }
+        if (cartItems.length === 0) return;
+
         const total = cartItems.reduce(
             (accumulator, currentValue) =>
                 accumulator + currentValue.price * currentValue.quantity,
             0
         );
+
         const newHistoryEntry: HistoryEntry = {
             items: cartItems,
             total: total,
@@ -81,8 +109,9 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
             location: location,
             phoneNumber: phoneNumber,
         };
+
         setCheckoutHistory((prevHistory) => [...prevHistory, newHistoryEntry]);
-        setCartItems([]);
+        setCartItems([]); // Xóa giỏ hàng sau khi thanh toán
     };
 
     return (
@@ -91,11 +120,13 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
                 cartItems,
                 addToCart,
                 removeFromCart,
+                decreaseQuantity,
+                clearCart,
                 getItemCount,
                 wishListItems,
                 addWishListItem,
-                handleCheckout,
                 removeItemFromWishList,
+                handleCheckout,
                 checkoutHistory,
             }}
         >

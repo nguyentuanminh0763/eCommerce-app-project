@@ -290,13 +290,26 @@
             "timestamp": "5 days ago"
         }
     ],
-    "user": {
-        "id": 1,
-        "name": "John Doe",
-        "email": "johndoe@example.com",
-        "address": "123 Main St, Springfield, USA",
-        "phone": "+1234567890",
-        "profilePicture": "https://i.imgur.com/axsyGpD.jpeg",
-        "password": "password123"
+    "users": [
+    {
+      "id": 1,
+      "name": "John Doe",
+      "email": "customer@gmail.com",
+      "role": "customer",
+      "address": "123 Main St, Springfield, USA",
+      "phone": "+1234567890",
+      "profilePicture": "https://i.imgur.com/axsyGpD.jpeg",
+      "password": "customer"
+    },
+    {
+      "id": 2,
+      "name": "Jane Admin",
+      "email": "admin@gmail.com",
+      "role": "admin",
+      "address": "456 Admin Rd, Metropolis, USA",
+      "phone": "+1987654321",
+      "profilePicture": "https://i.imgur.com/ExampleAdmin.jpeg",
+      "password": "admin"
     }
+  ]
 }

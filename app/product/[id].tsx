@@ -16,7 +16,7 @@ export default function ProductDetail() {
 
   useEffect(() => {
     if (id) {
-      fetch(`http://192.168.100.78:8000/products/${id}`)
+      fetch(`http://localhost:8000/products/${id}`)
         .then((res) => res.json())
         .then((data) => setProduct(data))
         .catch((err) => console.error(err));

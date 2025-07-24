@@ -18,7 +18,7 @@ const ExploreScreen = () => {
 
   const fetchData = async () => {
     try {
-      const response = await axios.get('http://172.16.0.229:3000/products');
+      const response = await axios.get('http://localhost:8000/products');
 
       setData(response.data);
     } catch (error) {

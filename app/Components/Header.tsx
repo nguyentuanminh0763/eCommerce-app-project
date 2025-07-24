@@ -1,4 +1,4 @@
-import { StyleSheet, View, Text, TouchableOpacity } from 'react-native'
+import { StyleSheet, View, Text, TouchableOpacity, Image } from 'react-native'
 import React from 'react'
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Colors } from '@/constants/Colors';
@@ -11,15 +11,16 @@ const Header = (props: Props) => {
     const insets = useSafeAreaInsets();
     return (
         <View style={[styles.container, { paddingTop: insets.top }]}>
-            <Text style={styles.logo}>FS</Text>
+            {/* Logo */}
+            <Image source={require('@/assets/images/logoo.jpg')} style={styles.logo} />
+
+            {/* Search bar */}
             <Link href="/explore" asChild>
                 <TouchableOpacity style={styles.searchBar}>
                     <Text style={styles.searchText}>Search</Text>
                     <Ionicons name="search-outline" size={20} color={Colors.gray} />
                 </TouchableOpacity>
             </Link>
-
-
         </View>
     )
 }
@@ -37,9 +38,9 @@ const styles = StyleSheet.create({
         gap: 15
     },
     logo: {
-        fontSize: 24,
-        fontWeight: '700',
-        color: Colors.primary,
+        width: 40,
+        height: 40,
+        resizeMode: 'contain',
     },
     searchBar: {
         flex: 1,
@@ -48,6 +49,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 10,
         flexDirection: 'row',
         justifyContent: 'space-between',
+        alignItems: 'center',
     },
     searchText: {
         color: Colors.gray,

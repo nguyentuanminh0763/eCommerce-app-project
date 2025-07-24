@@ -1,5 +1,13 @@
-import React, { createContext, useContext, useState, ReactNode } from "react";
-import { ProductType } from "@/types/type";
+import React, {
+    createContext,
+    useContext,
+    useState,
+    ReactNode,
+    useEffect,
+} from "react";
+import { NotificationType, ProductType } from "@/types/type";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { router } from "expo-router";
 
 export type CartItem = ProductType & { quantity: number };
 
@@ -23,6 +31,8 @@ interface CartContextType {
     removeItemFromWishList: (productId: number) => void;
     handleCheckout: (location: string, phoneNumber: string) => void;
     checkoutHistory: HistoryEntry[];
+    logout: () => void;
+    notiList: NotificationType[];
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -37,6 +47,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     const [cartItems, setCartItems] = useState<CartItem[]>([]);
     const [wishListItems, setWishListItems] = useState<ProductType[]>([]);
     const [checkoutHistory, setCheckoutHistory] = useState<HistoryEntry[]>([]);
+    const [notiList, setNotiList] = useState<NotificationType[]>([]);
 
     // Thêm sản phẩm vào giỏ hàng
     const addToCart = (product: ProductType) => {
@@ -89,11 +100,18 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
     // Xóa sản phẩm khỏi wishlist
     const removeItemFromWishList = (productId: number) => {
-        setWishListItems((prev) => prev.filter((item) => item.id !== productId));
+        setWishListItems((prev) =>
+            prev.filter((item) => item.id !== productId)
+        );
+    };
+
+    const logout = async () => {
+        await AsyncStorage.clear();
+        router.push("/signin");
     };
 
     // Thanh toán
-    const handleCheckout = (location: string, phoneNumber: string) => {
+    const handleCheckout = async (location: string, phoneNumber: string) => {
         if (cartItems.length === 0) return;
 
         const total = cartItems.reduce(
@@ -109,6 +127,20 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
             location: location,
             phoneNumber: phoneNumber,
         };
+
+        const user = await AsyncStorage.getItem("currentUser");
+        const jsonUser = user ? JSON.parse(user) : null;
+
+        setNotiList([
+            ...notiList,
+            {
+                userName: jsonUser.name,
+                title: "New Order",
+                message: "",
+                timestamp: Date.now().toString(),
+                product: cartItems,
+            },
+        ]);
 
         setCheckoutHistory((prevHistory) => [...prevHistory, newHistoryEntry]);
         setCartItems([]); // Xóa giỏ hàng sau khi thanh toán
@@ -128,6 +160,8 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
                 removeItemFromWishList,
                 handleCheckout,
                 checkoutHistory,
+                logout,
+                notiList,
             }}
         >
             {children}

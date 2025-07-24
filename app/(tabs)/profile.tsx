@@ -316,7 +316,7 @@ const ProfileScreen = () => {
     });
 
     useEffect(() => {
-        fetch("http://172.16.0.229:3000/user")
+        fetch("http://localhost:8000/user")
             .then((res) => res.json())
             .then((data) => {
                 setUser(data);

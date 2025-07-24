@@ -1,320 +1,177 @@
+import React, { useEffect, useState } from 'react';
 import {
-  StyleSheet,
-  Text,
   View,
-  Image,
+  Text,
+  StyleSheet,
   FlatList,
   TouchableOpacity,
   Modal,
-  Pressable,
   TextInput,
-} from "react-native";
-import React, { useState } from "react";
-import { Colors } from "@/constants/Colors";
-import { Ionicons } from "@expo/vector-icons";
-import Header from "@/app/Components/Header";
-import { Stack } from "expo-router";
-import { useCart } from "../Components/CartContext";
+  Alert,
+  ActivityIndicator,
+  SafeAreaView,
+  ScrollView,
+  Image,
+  Platform,
+} from 'react-native';
+import axios from 'axios';
+import { Picker } from '@react-native-picker/picker';
+import * as ImagePicker from 'expo-image-picker';
+import { Stack } from 'expo-router';
+import Header from '@/app/Components/Header';
 
-const CartScreen = () => {
-  const { cartItems, handleCheckout, removeFromCart, clearCart } = useCart();
+// Cho emulator Android sử dụng địa chỉ để kết nối tới máy chủ localhost của dev machine
+const HOST = Platform.OS === 'android' ? '10.0.2.2' : 'localhost';
+const SERVER = `http://${HOST}:8000`;
+
+type Category = { id: number; name: string; image: string };
+type Product = {
+  id?: number;
+  title: string;
+  price: number;
+  description: string;
+  images: string[];
+  categoryId: number;
+};
+
+export default function AdminProductsScreen() {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loading, setLoading] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
-  const [location, setLocation] = useState("");
-  const [phoneNumber, setPhoneNumber] = useState("");
-  const [name, setName] = useState("");
-const [deposit, setDeposit] = useState("");
+  const [current, setCurrent] = useState<Product>({ title: '', price: 0, description: '', images: [], categoryId: 1 });
 
-  const total = cartItems.reduce(
-    (sum, item) => sum + item.price * item.quantity,
-    0
-  );
+  const fetchData = async () => {
+    try {
+      const [pRes, cRes] = await Promise.all([
+        axios.get<Product[]>(`${SERVER}/products`),
+        axios.get<Category[]>(`${SERVER}/categories`),
+      ]);
+      setProducts(pRes.data);
+      setCategories(cRes.data);
+    } catch (e: any) {
+      Alert.alert('Error', e.message || 'Không lấy được dữ liệu');
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  const handleConfirmCheckout = () => {
+  useEffect(() => { fetchData(); }, []);
+
+  const openModal = (item?: Product) => {
+    if (item) setCurrent(item);
+    else setCurrent({ title: '', price: 0, description: '', images: [], categoryId: categories[0]?.id || 1 });
     setModalVisible(true);
   };
 
-  const handleFinalCheckout = () => {
-    console.log({
-        name,
-        location,
-        phoneNumber,
-        deposit,
-        total,
-    });
-    handleCheckout(location, phoneNumber);
-    setModalVisible(false);
+  const closeModal = () => setModalVisible(false);
+
+  const pickImage = async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== 'granted') return Alert.alert('Permission denied');
+    const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ImagePicker.MediaTypeOptions.Images, quality: 0.7 });
+    if (!result.cancelled) setCurrent(prev => ({ ...prev, images: [...prev.images, result.uri] }));
+  };
+
+  const handleSave = async () => {
+    try {
+      if (current.id) await axios.put(`${SERVER}/products/${current.id}`, current);
+      else await axios.post(`${SERVER}/products`, current);
+      Alert.alert('Thành công');
+      closeModal();
+      fetchData();
+    } catch (e: any) {
+      Alert.alert('Lỗi', e.message);
+    }
+  };
+
+  const handleDelete = async (id?: number) => {
+  if (!id) return;
+  try {
+    await axios.delete(`${SERVER}/products/${id}`);
+    setProducts(prev => prev.filter(p => p.id !== id));
+  } catch (e: any) {
+    Alert.alert('Lỗi', e.message || 'Không thể xóa sản phẩm');
+  }
 };
 
 
-  const renderItem = ({ item }: any) => (
-    <View style={styles.itemContainer}>
-      <Image source={{ uri: item.images[0] }} style={styles.image} />
-      <View style={styles.info}>
-        <Text style={styles.itemTitle}>{item.title}</Text>
-        <Text style={styles.price}>
-          ${item.price} x {item.quantity}
-        </Text>
-        <Text style={styles.subtotal}>
-          Subtotal: ${item.price * item.quantity}
-        </Text>
+  const renderItem = ({ item }: { item: Product }) => (
+    <View style={styles.card}>
+      <Text style={styles.title}>{item.title}</Text>
+      <Text>${item.price}</Text>
+      <Text>Category: {categories.find(c => c.id === item.categoryId)?.name}</Text>
+      <View style={styles.actionsRow}>
+        <TouchableOpacity style={styles.btnEdit} onPress={() => openModal(item)}><Text style={styles.btnText}>Edit</Text></TouchableOpacity>
+        <TouchableOpacity style={styles.btnDelete} onPress={() => handleDelete(item.id)}><Text style={styles.btnText}>Delete</Text></TouchableOpacity>
       </View>
-      <TouchableOpacity
-        onPress={() => removeFromCart(item.id)}
-        style={styles.removeBtn}
-      >
-        <Ionicons name="trash" size={20} color="white" />
-      </TouchableOpacity>
     </View>
   );
 
+  if (loading) return <View style={styles.center}><ActivityIndicator size='large' /></View>;
+
   return (
-    <>
-      <Stack.Screen
-        options={{
-          headerShown: true,
-          header: () => <Header />,
-        }}
-      />
-      <View style={styles.container}>
-        <Text style={styles.title}>Your Cart</Text>
-        {cartItems.length === 0 ? (
-          <Text style={styles.emptyText}>Your cart is empty.</Text>
-        ) : (
-          <>
-            <FlatList
-              data={cartItems}
-              keyExtractor={(item) => item.id.toString()}
-              renderItem={renderItem}
-              ItemSeparatorComponent={() => <View style={styles.separator} />}
-            />
-            <View style={styles.totalRow}>
-              <Text style={styles.totalText}>Total:</Text>
-              <Text style={styles.totalAmount}>${total}</Text>
-            </View>
-            <View style={styles.actions}>
-              <TouchableOpacity style={styles.clearBtn} onPress={clearCart}>
-                <Text style={{ color: "white" }}>Clear Cart</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.checkoutBtn}
-                onPress={handleConfirmCheckout}
-              >
-                <Text style={{ color: "white" }}>Đặt trước</Text>
-              </TouchableOpacity>
-            </View>
-          </>
-        )}
+    <SafeAreaView style={styles.container}>
+      <Stack.Screen options={{ header: () => <Header /> }} />
+      <View style={styles.headerRow}>
+        <Text style={styles.heading}>Danh sách sản phẩm</Text>
+        <TouchableOpacity style={styles.btnAdd} onPress={() => openModal()}><Text style={styles.btnText}>Thêm</Text></TouchableOpacity>
       </View>
+      <FlatList data={products} keyExtractor={item => item.id!.toString()} renderItem={renderItem} contentContainerStyle={styles.list} />
 
-      {/* Modal Checkout */}
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={() => setModalVisible(false)}
-      >
+      <Modal visible={modalVisible} transparent animationType='slide' onRequestClose={closeModal}>
         <View style={styles.centeredView}>
-          <View style={styles.modalView}>
-            <Text style={styles.modalText}>Thông tin đặt trước</Text>
-
-            <TextInput
-              placeholder="Họ và tên"
-              value={name}
-              onChangeText={setName}
-              style={styles.input}
-            />
-            <TextInput
-              placeholder="Địa chỉ"
-              value={location}
-              onChangeText={setLocation}
-              style={styles.input}
-            />
-            <TextInput
-              placeholder="Số điện thoại"
-              value={phoneNumber}
-              onChangeText={setPhoneNumber}
-              keyboardType="phone-pad"
-              style={styles.input}
-            />
-            <TextInput
-              placeholder="Số tiền cọc"
-              value={deposit}
-              onChangeText={setDeposit}
-              keyboardType="numeric"
-              style={styles.input}
-            />
-
-            <View style={styles.modalButtons}>
-              <Pressable
-                style={[styles.button, styles.buttonClose]}
-                onPress={() => setModalVisible(false)}
-              >
-                <Text style={styles.textStyle}>Hủy</Text>
-              </Pressable>
-              <Pressable
-                style={[styles.button, styles.buttonConfirm]}
-                onPress={handleFinalCheckout}
-              >
-                <Text style={styles.textStyle}>Xác nhận</Text>
-              </Pressable>
+          <ScrollView style={styles.modalView}>
+            <Text style={styles.modalTitle}>{current.id ? 'Edit Product' : 'Add Product'}</Text>
+            <TextInput style={styles.input} placeholder='Title' value={current.title} onChangeText={text => setCurrent({ ...current, title: text })} />
+            <TextInput style={styles.input} placeholder='Price' keyboardType='numeric' value={current.price.toString()} onChangeText={text => setCurrent({ ...current, price: Number(text) })} />
+            <TextInput style={[styles.input, { height: 80 }]} placeholder='Description' multiline value={current.description} onChangeText={text => setCurrent({ ...current, description: text })} />
+            <Text style={styles.label}>Category:</Text>
+            <View style={styles.pickerWrapper}>
+              <Picker selectedValue={current.categoryId} onValueChange={val => setCurrent({ ...current, categoryId: val })}>
+                {categories.map(cat => <Picker.Item key={cat.id} label={cat.name} value={cat.id} />)}
+              </Picker>
             </View>
-          </View>
+            <Text style={styles.label}>Images:</Text>
+            <View style={styles.imageRow}>
+              {current.images.map((uri, idx) => <Image key={idx} source={{ uri }} style={styles.thumbnail} />)}
+              <TouchableOpacity style={styles.btnAddImage} onPress={pickImage}><Text style={styles.btnText}>+</Text></TouchableOpacity>
+            </View>
+            <View style={styles.modalActions}>
+              <TouchableOpacity style={[styles.button, styles.buttonClose]} onPress={closeModal}><Text style={styles.btnText}>Cancel</Text></TouchableOpacity>
+              <TouchableOpacity style={[styles.button, styles.buttonSave]} onPress={handleSave}><Text style={styles.btnText}>Save</Text></TouchableOpacity>
+            </View>
+          </ScrollView>
         </View>
       </Modal>
-    </>
+    </SafeAreaView>
   );
-};
-
-export default CartScreen;
+}
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: Colors.white,
-    paddingHorizontal: 20,
-    paddingTop: 10,
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: "700",
-    marginBottom: 16,
-    color: Colors.black,
-  },
-  emptyText: {
-    fontSize: 16,
-    textAlign: "center",
-    color: Colors.gray,
-    marginTop: 50,
-  },
-  itemContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: Colors.background,
-    borderRadius: 12,
-    padding: 10,
-  },
-  image: {
-    width: 80,
-    height: 80,
-    borderRadius: 10,
-    marginRight: 12,
-  },
-  info: {
-    flex: 1,
-  },
-  itemTitle: {
-    fontSize: 16,
-    fontWeight: "600",
-    marginBottom: 4,
-    color: Colors.black,
-  },
-  price: {
-    fontSize: 15,
-    color: Colors.primary,
-    marginBottom: 2,
-  },
-  subtotal: {
-    fontSize: 14,
-    color: Colors.gray,
-  },
-  removeBtn: {
-    backgroundColor: "#ff4d4d",
-    padding: 8,
-    borderRadius: 8,
-  },
-  separator: {
-    height: 12,
-  },
-  totalRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginTop: 24,
-    paddingVertical: 12,
-    borderTopWidth: 1,
-    borderColor: Colors.background,
-  },
-  totalText: {
-    fontSize: 18,
-    fontWeight: "700",
-    color: Colors.black,
-  },
-  totalAmount: {
-    fontSize: 18,
-    fontWeight: "700",
-    color: Colors.primary,
-  },
-  actions: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    gap: 10,
-    marginTop: 10,
-  },
-  clearBtn: {
-    flex: 1,
-    backgroundColor: "#888",
-    paddingVertical: 14,
-    borderRadius: 8,
-    alignItems: "center",
-  },
-  checkoutBtn: {
-    flex: 1,
-    backgroundColor: Colors.primary,
-    paddingVertical: 14,
-    borderRadius: 8,
-    alignItems: "center",
-  },
-  centeredView: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "rgba(0,0,0,0.4)",
-  },
-  modalView: {
-    backgroundColor: "white",
-    borderRadius: 16,
-    padding: 20,
-    width: "90%",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
-  },
-  modalText: {
-    fontSize: 18,
-    fontWeight: "600",
-    marginBottom: 12,
-    textAlign: "center",
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 8,
-    padding: 10,
-    marginBottom: 12,
-  },
-  modalButtons: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginTop: 10,
-  },
-  button: {
-    flex: 1,
-    paddingVertical: 10,
-    borderRadius: 8,
-    marginHorizontal: 5,
-    alignItems: "center",
-  },
-  buttonClose: {
-    backgroundColor: "#ccc",
-  },
-  buttonConfirm: {
-    backgroundColor: "#572fff",
-  },
-  textStyle: {
-    color: "white",
-    fontWeight: "600",
-    fontSize: 16,
-  },
+  container: { flex: 1, backgroundColor: '#f2f2f2' },
+  center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  headerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 16 },
+  heading: { fontSize: 20, fontWeight: 'bold' },
+  btnAdd: { backgroundColor: '#28a745', padding: 8, borderRadius: 4 },
+  btnText: { color: '#fff', fontWeight: '600' },
+  list: { paddingHorizontal: 16 },
+  card: { backgroundColor: '#fff', padding: 12, borderRadius: 8, marginBottom: 12, elevation: 2 },
+  title: { fontSize: 16, fontWeight: '600', marginBottom: 4 },
+  actionsRow: { flexDirection: 'row', justifyContent: 'flex-end', gap: 8 },
+  btnEdit: { backgroundColor: '#ffc107', padding: 6, borderRadius: 4 },
+  btnDelete: { backgroundColor: '#dc3545', padding: 6, borderRadius: 4 },
+  centeredView: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.4)' },
+  modalView: { backgroundColor: '#fff', borderRadius: 8, padding: 16, width: '90%', maxHeight: '90%' },
+  modalTitle: { fontSize: 18, fontWeight: 'bold', marginBottom: 12 },
+  label: { marginBottom: 4, fontWeight: '600' },
+  input: { borderWidth: 1, borderColor: '#ccc', borderRadius: 6, padding: 10, marginBottom: 12, backgroundColor: '#fff' },
+  pickerWrapper: { borderWidth: 1, borderColor: '#ccc', borderRadius: 6, marginBottom: 12 },
+  imageRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 12 },
+  thumbnail: { width: 50, height: 50, marginRight: 8, borderRadius: 4 },
+  btnAddImage: { width: 50, height: 50, backgroundColor: '#007bff', justifyContent: 'center', alignItems: 'center', borderRadius: 4 },
+  modalActions: { flexDirection: 'row', justifyContent: 'flex-end', gap: 12 },
+  button: { paddingVertical: 10, paddingHorizontal: 16, borderRadius: 6 },
+  buttonClose: { backgroundColor: '#6c757d' },
+  buttonSave: { backgroundColor: '#007bff' }
 });

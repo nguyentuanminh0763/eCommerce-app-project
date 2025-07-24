@@ -33,6 +33,7 @@ const ProfileScreen = () => {
 
     useEffect(() => {
         fetch("http://localhost:8000/users")
+
             .then((res) => res.json())
             .then(async (data) => {
                 const userString = await AsyncStorage.getItem("currentUser");

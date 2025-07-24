@@ -4,140 +4,120 @@ import {
   Text,
   StyleSheet,
   FlatList,
-  Image,
-  TouchableOpacity,
+  ActivityIndicator,
   SafeAreaView,
-  StatusBar,
-  TextInput,
+  TouchableOpacity,
 } from 'react-native';
 import axios from 'axios';
 
-const ExploreScreen = () => {
-  const [data, setData] = useState([]);
-  const [searchText, setSearchText] = useState('');
+type User = {
+  id: number;
+  name: string;
+  email: string;
+  role: string;
+  address: string;
+  phone: string;
+};
 
-  const fetchData = async () => {
-    try {
-      const response = await axios.get('http://localhost:8000/products');
+const SERVER = 'http://localhost:8000';
 
-      setData(response.data);
-    } catch (error) {
-      console.error('Error fetching data: ', error);
-    }
-  };
+export default function AdminUsersScreen() {
+  const [users, setUsers] = useState<User[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchData();
+    (async () => {
+      try {
+        const res = await axios.get<User[]>(`${SERVER}/users`);
+        setUsers(res.data);
+      } catch (e: any) {
+        setError(e.message || 'Không lấy được danh sách users');
+      } finally {
+        setLoading(false);
+      }
+    })();
   }, []);
 
-  const filteredData = data.filter(item =>
-    item.title.toLowerCase().includes(searchText.toLowerCase())
+  const renderItem = ({ item }: { item: User }) => (
+    <View style={styles.card}>
+      <View style={styles.row}>
+        <Text style={styles.label}>ID:</Text>
+        <Text style={styles.value}>{item.id}</Text>
+      </View>
+      <View style={styles.row}>
+        <Text style={styles.label}>Name:</Text>
+        <Text style={styles.value}>{item.name}</Text>
+      </View>
+      <View style={styles.row}>
+        <Text style={styles.label}>Email:</Text>
+        <Text style={styles.value}>{item.email}</Text>
+      </View>
+      <View style={styles.row}>
+        <Text style={styles.label}>Role:</Text>
+        <Text style={styles.value}>{item.role}</Text>
+      </View>
+      <TouchableOpacity style={styles.detailButton}>
+        <Text style={styles.detailButtonText}>Xem chi tiết</Text>
+      </TouchableOpacity>
+    </View>
   );
 
-  const renderItem = ({ item }) => (
-    <TouchableOpacity style={styles.card}>
-      <Image source={{ uri: item.images[0] }} style={styles.image} resizeMode="cover" />
-      
-      <View style={styles.textWrapper}>
-        <Text style={styles.title}>{item.title}</Text>
+  if (loading) {
+    return (
+      <View style={styles.center}>
+        <ActivityIndicator size="large" />
       </View>
-    </TouchableOpacity>
-  );
+    );
+  }
+
+  if (error) {
+    return (
+      <View style={styles.center}>
+        <Text style={styles.error}>{error}</Text>
+      </View>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="#fff" />
-      
-      <TextInput
-        style={styles.searchInput}
-        placeholder="Tìm kiếm địa điểm..."
-        value={searchText}
-        onChangeText={setSearchText}
-      />
       <FlatList
-        data={filteredData}
+        data={users}
+        keyExtractor={(u) => u.id.toString()}
         renderItem={renderItem}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={styles.listContent}
-        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.list}
+        ItemSeparatorComponent={() => <View style={styles.separator} />}
       />
     </SafeAreaView>
   );
-};
-
-export default ExploreScreen;
-
+}
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fefefe',
-    paddingTop: StatusBar.currentHeight || 40,
-  },
-
-  header: {
-    fontSize: 26,
-    fontWeight: '700',
-    color: '#1a1a1a',
-    marginBottom: 16,
-    paddingHorizontal: 16,
-  },
-
-  searchInput: {
-    height: 35,
-  marginHorizontal: 30,
-  paddingLeft: 18,
-  paddingRight: 18,
-  backgroundColor: '#ffffff',
-  borderRadius: 25,
-  borderWidth: 0.5,
-  borderColor: '#d0d0d0',
-  fontSize: 16,
-  color: '#333',
-  marginBottom: 20,
-  marginTop:15,
-
-  // Hiệu ứng đổ bóng mềm mại
-  shadowColor: '#000',
-  shadowOffset: { width: 0, height: 2 },
-  shadowOpacity: 0.08,
-  shadowRadius: 4,
-  elevation: 3,
-  },
-
-  listContent: {
-    paddingBottom: 20,
-  },
-
+  container: { flex: 1, backgroundColor: '#f2f2f2' },
+  center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  error: { color: 'red', fontSize: 16 },
+  list: { padding: 16 },
+  separator: { height: 12 },
   card: {
     backgroundColor: '#fff',
-    marginBottom: 16,
-    borderRadius: 12,
-    overflow: 'hidden',
+    borderRadius: 8,
+    padding: 12,
     shadowColor: '#000',
     shadowOpacity: 0.05,
     shadowOffset: { width: 0, height: 2 },
     shadowRadius: 4,
     elevation: 2,
-    marginHorizontal: 16, // cách lề 2 bên
   },
-
-  image: {
-    width: '100%',
-    height: 200,
-    borderTopLeftRadius: 12,
-    borderTopRightRadius: 12,
-    resizeMode: 'cover',
-    backgroundColor: '#eee',
+  row: { flexDirection: 'row', marginBottom: 4 },
+  label: { fontWeight: '600', width: 60 },
+  value: { flex: 1 },
+  detailButton: {
+    marginTop: 8,
+    alignSelf: 'flex-end',
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    backgroundColor: '#007AFF',
+    borderRadius: 4,
   },
-
-  textWrapper: {
-    padding: 12,
-  },
-
-  title: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#222',
-  },
+  detailButtonText: { color: '#fff', fontSize: 14 },
 });

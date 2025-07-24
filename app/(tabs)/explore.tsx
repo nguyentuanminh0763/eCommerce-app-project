@@ -1,5 +1,3 @@
-<<<<<<< HEAD
-
 import React, { useEffect, useState } from 'react';
 import {
   View,
@@ -14,33 +12,13 @@ import {
 } from 'react-native';
 import axios from 'axios';
 
-=======
-import React, { useEffect, useState } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  FlatList,
-  Image,
-  TouchableOpacity,
-  SafeAreaView,
-  StatusBar,
-  TextInput,
-} from 'react-native';
-import axios from 'axios';
-
->>>>>>> ba68ef64bdcc7c95dcdbdf92b623a8c718bdb5a2
 const ExploreScreen = () => {
   const [data, setData] = useState([]);
   const [searchText, setSearchText] = useState('');
 
   const fetchData = async () => {
     try {
-<<<<<<< HEAD
-      const response = await axios.get('http://172.16.0.229:3000/products');
-=======
       const response = await axios.get('http://localhost:8000/products');
->>>>>>> ba68ef64bdcc7c95dcdbdf92b623a8c718bdb5a2
 
       setData(response.data);
     } catch (error) {
@@ -162,8 +140,4 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#222',
   },
-<<<<<<< HEAD
 });
-=======
-});
->>>>>>> ba68ef64bdcc7c95dcdbdf92b623a8c718bdb5a2

@@ -210,7 +210,87 @@
         "image": "https://i.imgur.com/Qphac99.jpeg"
       },
       "categoryId": "2"
-    }
+    },
+    {
+    "id": "11",
+    "title": "2021 Toyota Camry LE",
+    "price": 25900,
+    "description": "Sedan 5 chỗ, động cơ 2.5L, hộp số tự động 8 cấp, ghế vải cao cấp, tích hợp Android Auto và Apple CarPlay.",
+    "images": [
+      "https://rino-prod.s3.ap-southeast-1.amazonaws.com/1753169025756-fix-1.jpg",
+      "https://i.imgur.com/DPDdqqP.jpeg"
+    ],
+    "category": {
+      "id": 1,
+      "name": "Sedan",
+      "image": "https://i.imgur.com/QkIa5tT.jpeg"
+    },
+    "categoryId": "6"
+  },
+  {
+    "id": "12",
+    "title": "2023 Toyota Camry XSE",
+    "price": 31900,
+    "description": "Phiên bản thể thao của Camry, động cơ 2.5L, mâm hợp kim 19 inch, nội thất da 2 tông màu, camera 360, HUD.",
+    "images": [
+      "https://rino-prod.s3.ap-southeast-1.amazonaws.com/1742198208491-1.jpg",
+      "https://i.imgur.com/54DxNRh.jpeg"
+    ],
+    "category": {
+      "id": 1,
+      "name": "Sedan",
+      "image": "https://i.imgur.com/QkIa5tT.jpeg"
+    },
+    "categoryId": "6"
+  },
+  {
+    "id": "13",
+    "title": "2020 Toyota Camry Hybrid",
+    "price": 28900,
+    "description": "Động cơ xăng lai điện 2.5L, tiết kiệm nhiên liệu tối ưu, công suất tổng hợp 208 mã lực, trang bị gói an toàn TSS 2.0.",
+    "images": [
+      "https://rino-prod.s3.ap-southeast-1.amazonaws.com/1746758484309-fix-1.png",
+      "https://i.imgur.com/mTgyXq7.jpeg"
+    ],
+    "category": {
+      "id": 1,
+      "name": "Sedan",
+      "image": "https://i.imgur.com/QkIa5tT.jpeg"
+    },
+    "categoryId": "6"
+  },
+  {
+    "id": "14",
+    "title": "2022 Toyota Camry SE Nightshade",
+    "price": 29900,
+    "description": "Camry SE bản Nightshade với chi tiết sơn đen thể thao, ghế da thể thao, hệ thống âm thanh 6 loa, camera lùi.",
+    "images": [
+      "https://rino-prod.s3.ap-southeast-1.amazonaws.com/1750994161156-fix-1.jpg",
+      "https://i.imgur.com/DGf0k1E.jpeg"
+    ],
+    "category": {
+      "id": 1,
+      "name": "Sedan",
+      "image": "https://i.imgur.com/QkIa5tT.jpeg"
+    },
+    "categoryId": "6"
+  },
+  {
+    "id": "15",
+    "title": "2024 Toyota Camry TRD",
+    "price": 33900,
+    "description": "Camry hiệu suất cao với động cơ V6 3.5L 301 mã lực, ống xả thể thao, treo TRD, thiết kế khí động học mạnh mẽ.",
+    "images": [
+      "https://rino-prod.s3.ap-southeast-1.amazonaws.com/1750219713038-fix-1.jpg",
+      "https://i.imgur.com/yfJ53qF.jpeg"
+    ],
+    "category": {
+      "id": 1,
+      "name": "Sedan",
+      "image": "https://i.imgur.com/QkIa5tT.jpeg"
+    },
+    "categoryId": "6"
+  }
   ],
   "categories": [
     {
@@ -310,7 +390,7 @@
       "email": "admin@gmail.com",
       "role": "admin",
       "address": "456 Admin Rd, Metropolis, USA",
-      "phone": "+1987654321",
+      "phone": "+19876543211",
       "profilePicture": "https://i.imgur.com/ExampleAdmin.jpeg",
       "password": "admin"
     }
